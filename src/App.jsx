@@ -1,6 +1,15 @@
+import Navbar from "./components/Navbar"
+
 const App = () => {
   return (
-    <div className=''>Hello World</div>
+    <div >
+    {/* Navbar */}
+    <Navbar/>
+    {/* Breadcrumbs */}
+    {/* Introduction */}
+    {/* Featured Posts */}
+    {/* Post List */}
+    </div>
   )
 }
 
