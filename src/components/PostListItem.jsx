@@ -9,8 +9,8 @@ const PostListItem = () => {
         <Image src="postImg.jpeg" className="rounded-2xl object-cover" w="735"/>
       </div>
       {/* details */}
-      <div className="flex flex-col gap-4 w-2/3">
-        <Link to="/test" className="text-4xl font-semibold">
+      <div className="flex flex-col gap-4 xl:w-2/3">
+        <Link to="/test" className="text-3xl md:text-4xl font-semibold">
           Lorem ipsum dolor, sit amet consectetur adipisicing elit. Veniam
           explicabo inventore veritatis.
         </Link>
