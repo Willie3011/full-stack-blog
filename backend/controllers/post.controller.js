@@ -24,7 +24,19 @@ export const createPost = async (req, res) => {
     return res.status(404).json("User not found!");
   }
 
-  const newPost = new Post({ user: user._id, ...req.body });
+  let slug = req.body.title.replace(/ /g, "-").toLowerCase();
+
+  let existingPost = await Post.findOne({ slug });
+
+  let counter = 2;
+
+  while (existingPost) {
+    slug = `${slug}-${counter}`;
+    existingPost = await Post.findOne({ slug });
+    counter++;
+  }
+
+  const newPost = new Post({ user: user._id, slug, ...req.body });
 
   const post = await newPost.save();
   res.status(200).send(post);
@@ -43,8 +55,8 @@ export const deletePost = async (req, res) => {
     user: user._id,
   });
 
-  if(!deletedPost){
-    return res.status(403).json("You can only delete your posts!")
+  if (!deletedPost) {
+    return res.status(403).json("You can only delete your posts!");
   }
 
   res.status(200).json("This post have been deleted");

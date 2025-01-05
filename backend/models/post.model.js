@@ -6,7 +6,7 @@ const postSchema = new Schema(
     user: {
       type: Schema.Types.ObjectId,
       ref: "User",
-      required:true
+      required: true,
     },
     img: {
       type: String,
@@ -18,14 +18,18 @@ const postSchema = new Schema(
     slug: {
       type: String,
       required: true,
-      unique:true
+      unique: true,
     },
     desc: {
       type: String,
     },
+    category: {
+      type: String,
+      default: "general",
+    },
     content: {
       type: String,
-      required:true
+      required: true,
     },
     isFeatured: {
       type: Boolean,
