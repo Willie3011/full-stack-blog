@@ -1,7 +1,13 @@
 import { useAuth, useUser } from "@clerk/clerk-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
-import { FaBookmark, FaRegTrashCan, FaRegBookmark } from "react-icons/fa6";
+import {
+  FaBookmark,
+  FaRegTrashCan,
+  FaRegBookmark,
+  FaStar,
+  FaRegStar,
+} from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
@@ -29,7 +35,7 @@ const PostMenuActions = ({ post }) => {
     },
   });
 
-  const isAdmin = user?.publicMetadata?.role === "admin" || false
+  const isAdmin = user?.publicMetadata?.role === "admin" || false;
   const isSaved = savedPosts?.data?.some((p) => p === post._id) || false;
 
   const saveMutation = useMutation({
@@ -47,6 +53,26 @@ const PostMenuActions = ({ post }) => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["savedPosts"] });
+    },
+    onError: (err) => {
+      toast.error(err.response.data);
+    },
+  });
+  const featureMutation = useMutation({
+    mutationFn: async () => {
+      const token = await getToken();
+      return axios.patch(
+        `${import.meta.env.VITE_API_URL}/posts/feature`,
+        { postId: post._id },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["post", post.slug] });
     },
     onError: (err) => {
       toast.error(err.response.data);
@@ -73,6 +99,10 @@ const PostMenuActions = ({ post }) => {
 
   const handleDelete = () => {
     deleteMutation.mutate();
+  };
+
+  const handleFeature = () => {
+    featureMutation.mutate();
   };
 
   const handleSave = () => {
@@ -105,6 +135,27 @@ const PostMenuActions = ({ post }) => {
           )}
           <span>Save this post</span>
           {saveMutation.isPending && (
+            <span className="text-xs">(in progress)</span>
+          )}
+        </div>
+      )}
+      {isAdmin && (
+        <div
+          className="flex items-center gap-2 py-2 text-sm cursor-pointer"
+          onClick={handleFeature}>
+          {featureMutation.isPending ? (
+            post.isFeatured ? (
+              <FaRegStar />
+            ) : (
+              <FaStar />
+            )
+          ) : post.isFeatured ? (
+            <FaStar />
+          ) : (
+            <FaRegStar />
+          )}
+          <span>Feature this post</span>
+          {featureMutation.isPending && (
             <span className="text-xs">(in progress)</span>
           )}
         </div>

@@ -6,6 +6,8 @@ import Comments from "../components/Comments";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { format } from "timeago.js";
+import ReactHtmlParser from "react-html-parser";
+
 
 const fetchPost = async (slug) => {
   const res = await axios.get(`${import.meta.env.VITE_API_URL}/posts/${slug}`);
@@ -60,7 +62,7 @@ const SinglePostPage = () => {
       <div className="flex flex-col md:flex-row gap-8 min-h-screen">
         {/* text */}
         <div className="lg:text-lg flex flex-col gap-6 text-justify">
-          {data.content}
+          {ReactHtmlParser(data.content)}
         </div>
         {/* menu */}
         <div className="px-4 h-max sticky top-8">
