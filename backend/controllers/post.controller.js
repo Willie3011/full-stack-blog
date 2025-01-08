@@ -61,7 +61,17 @@ export const deletePost = async (req, res) => {
     return res.status(401).json("Not authenticated!");
   }
 
+  //Check if user is admin and delete post
+  const role = req.auth.sessionClaims?.metadata?.role || "user";
+  
+  if(role === "admin"){
+    await Post.findByIdAndDelete(req.params.id);
+    return res.status(200).json("This post have been deleted");
+  }
+  
+  //check if user is the owner of post and delete post
   const user = await User.findOne({ clerkUserId });
+  
   const deletedPost = await Post.findByIdAndDelete({
     _id: req.params.id,
     user: user._id,

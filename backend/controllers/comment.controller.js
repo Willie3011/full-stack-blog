@@ -35,11 +35,21 @@ export const addComment = async (req, res) => {
 export const deleteComment = async (req, res) => {
   const clerkUserId = req.auth.userId;
   const id = req.params.postId;
+  console.log(clerkUserId)
 
   if (!clerkUserId) {
     return res.status(401).json("Not authenticated");
   }
 
+  //check if user is admin and delete comment
+  const role = req.auth.sessionClaims?.metadata?.role || "user";
+  console.log(role);
+  if(role === "admin"){
+    await Comment.findByIdAndDelete(req.params.id);
+    return res.status(200).json("Comment has been deleted");
+  }
+
+  //check if user is owner of comment and delete comment
   const user = await User.findOne({ clerkUserId });
 
   const deletedComment = await Comment.findOneAndDelete({
