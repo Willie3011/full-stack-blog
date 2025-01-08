@@ -4,9 +4,66 @@ import ImageKit from "imagekit";
 
 export const getPosts = async (req, res) => {
   const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 2;
-  const posts = await Post.find()
+  const limit = parseInt(req.query.limit) || 10;
+
+  const query = {};
+
+  const category = req.query.cat;
+  const author = req.query.author;
+  const searchQuery = req.query.search;
+  const sortQuery = req.query.sort;
+  const featured = req.query.featured;
+
+  if (category) {
+    query.category = category;
+  }
+
+  if (searchQuery) {
+    query.title = { $regex: searchQuery, $options: "i" };
+  }
+
+  if (author) {
+    const user = await User.findOne({ username: author }).select("_id");
+
+    if (!user) {
+      return res.status(404).json("No Post found!");
+    }
+
+    query.user = user._id;
+  }
+
+  let sortObj = { createdAt: -1 };
+
+  if (sortQuery) {
+    switch (sortQuery) {
+      case "newest":
+        sortObj = { createdAt: -1 };
+        break;
+      case "oldest":
+        sortObj = { createdAt: 1 };
+        break;
+      case "popular":
+        sortObj = { visit: -1 };
+        break;
+      case "trending":
+        sortObj = { visit: -1 };
+        query.createAt = {
+          $gte: new Date(new Date().getTime() - 7 * 24 * 60 * 60 * 1000),
+        };
+        break;
+
+      default:
+        break;
+    }
+  }
+
+  if (featured) {
+    query.isFeatured = true;
+  }
+
+  const posts = await Post.find(query)
     .populate("user", "username")
+    .sort(sortObj)
     .limit(limit)
     .skip((page - 1) * limit);
 
@@ -125,5 +182,5 @@ export const featurePost = async (req, res) => {
     { new: true }
   );
 
-  res.status(200).json(updatePost)
+  res.status(200).json(updatePost);
 };
